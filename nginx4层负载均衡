@@ -1,0 +1,17 @@
+stream {
+
+    log_format  main  '$remote_addr $upstream_addr - [$time_local] $status $upstream_bytes_sent';
+
+    access_log  /var/log/nginx/k8s-access.log  main;
+
+    upstream k8s-apiserver {
+       server 172.18.16.111:6443;   # Master1 APISERVER IP:PORT
+       server 172.18.16.112:6443;   # Master2 APISERVER IP:PORT
+       server 172.18.16.113:6443;   # Master2 APISERVER IP:PORT
+    }
+
+    server {
+       listen 6443; # 由于nginx与master节点复用，这个监听端口不能是6443，否则会冲突
+       proxy_pass k8s-apiserver;
+    }
+}
